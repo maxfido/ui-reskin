@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ────────────────────────────────────────────────────────
+   FIDO FINANCIAL — Design System
+   IBM Plex Sans body · IBM Plex Mono labels/buttons
+   Stop Working For The Man
+   ──────────────────────────────────────────────────────── */
+
+:root {
+  --dark:          #0C0906;
+  --parch:         #EDE5D8;
+  --cream:         #F4EEE2;
+  --ink:           #100C08;
+  --ink-mid:       #241A10;
+  --ink-faint:     #4A3C2E;
+  --ink-rule:      #B8AA96;
+
+  --bg-base:       #FFFFFF;
+  --bg-surface:    #FFFFFF;
+  --bg-elevated:   #F7F7F5;
+  --bg-hover:      #F2F2F0;
+  --border:        rgba(16,12,8,0.08);
+  --border-strong: rgba(16,12,8,0.14);
+  --text-primary:  #100C08;
+  --text-secondary:#241A10;
+  --text-muted:    #4A3C2E;
+
+  --accent:        #100C08;
+  --accent-soft:   rgba(16,12,8,0.07);
+
+  --success:       #1E6B35;
+  --success-soft:  rgba(30,107,53,0.09);
+  --warning:       #8A5A10;
+  --error:         #7A1A10;
+
+  --sb-bg:         #FFFFFF;
+  --sb-border:     rgba(16,12,8,0.08);
+  --sb-text:       #100C08;
+  --sb-muted:      #6B5E52;
+  --sb-hover:      rgba(16,12,8,0.04);
+  --sb-active:     rgba(16,12,8,0.07);
+  --sb-active-text:#100C08;
+}
+
+[data-theme="dark"] {
+  --bg-base:       #1C1C1C;
+  --bg-surface:    #212121;
+  --bg-elevated:   #2A2A2A;
+  --bg-hover:      #303030;
+  --border:        rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+  --text-primary:  #EEECEA;
+  --text-secondary:#B0ABA4;
+  --text-muted:    #6E6860;
+  --accent:        #EEECEA;
+  --accent-soft:   rgba(238,236,234,0.08);
+  --success:       #4ABA6A;
+  --success-soft:  rgba(74,186,106,0.10);
+  --sb-bg:         #181818;
+  --sb-border:     rgba(255,255,255,0.07);
+  --sb-text:       #EEECEA;
+  --sb-muted:      #6E6860;
+  --sb-hover:      rgba(255,255,255,0.05);
+  --sb-active:     rgba(255,255,255,0.09);
+  --sb-active-text:#EEECEA;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono { font-family: 'IBM Plex Mono', monospace; }
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ink-rule); border-radius: 3px; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.fade-in-up { animation: fadeInUp 0.3s ease-out both; }
+
+.label-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  width: 100%;
+}
+.btn-primary:hover:not(:disabled) { opacity: 0.82; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text-primary); border-color: var(--ink-faint); }
