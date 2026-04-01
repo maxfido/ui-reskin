@@ -18,13 +18,16 @@ export default function OnboardingPage() {
   const [ownerName, setOwnerName] = useState('')
   const [industry, setIndustry] = useState('')
   const [website, setWebsite] = useState('')
+  const [city, setCity] = useState('')
+  const [state, setState] = useState('')
+  const [zip, setZip] = useState('')
   const [bankLinked, setBankLinked] = useState(false)
 
   const canProceedStep1 = type !== null
-  const canProceedStep2 = businessName.trim() && ownerName.trim() && industry
+  const canProceedStep2 = businessName.trim() && ownerName.trim() && industry && city.trim() && state.trim() && zip.trim()
 
   const handleFinish = () => {
-    setProfile({ type, businessName, ownerName, industry, website, bankLinked })
+    setProfile({ type, businessName, ownerName, industry, website, city, state, zip, bankLinked })
     setOnboarded(true)
     navigate('/dashboard')
   }
@@ -200,6 +203,37 @@ export default function OnboardingPage() {
                     value={website}
                     onChange={e => setWebsite(e.target.value)}
                   />
+                </div>
+                <div>
+                  <label className="input-label">City *</label>
+                  <input
+                    className="input-line"
+                    placeholder="San Francisco"
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div>
+                    <label className="input-label">State *</label>
+                    <input
+                      className="input-line"
+                      placeholder="CA"
+                      maxLength={2}
+                      value={state}
+                      onChange={e => setState(e.target.value.toUpperCase())}
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">ZIP Code *</label>
+                    <input
+                      className="input-line"
+                      placeholder="94103"
+                      maxLength={10}
+                      value={zip}
+                      onChange={e => setZip(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 

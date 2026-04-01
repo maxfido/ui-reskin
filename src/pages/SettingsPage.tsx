@@ -59,6 +59,9 @@ export default function SettingsPage() {
     industry: profile.industry,
     website: profile.website,
     phone: profile.phone || '',
+    city: profile.city || '',
+    state: profile.state || '',
+    zip: profile.zip || '',
   })
 
   const handleSave = () => {
@@ -152,6 +155,41 @@ export default function SettingsPage() {
             value={form.website}
             onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
             placeholder="https://yourbusiness.com"
+            onFocus={e => (e.target.style.borderBottomColor = 'var(--text)')}
+            onBlur={e => (e.target.style.borderBottomColor = 'var(--border-strong)')}
+          />
+        </FieldRow>
+
+        <FieldRow label="City">
+          <input
+            style={inputStyle}
+            value={form.city}
+            onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+            placeholder="San Francisco"
+            onFocus={e => (e.target.style.borderBottomColor = 'var(--text)')}
+            onBlur={e => (e.target.style.borderBottomColor = 'var(--border-strong)')}
+          />
+        </FieldRow>
+
+        <FieldRow label="State">
+          <input
+            style={inputStyle}
+            value={form.state}
+            onChange={e => setForm(f => ({ ...f, state: e.target.value.toUpperCase() }))}
+            placeholder="CA"
+            maxLength={2}
+            onFocus={e => (e.target.style.borderBottomColor = 'var(--text)')}
+            onBlur={e => (e.target.style.borderBottomColor = 'var(--border-strong)')}
+          />
+        </FieldRow>
+
+        <FieldRow label="ZIP Code">
+          <input
+            style={inputStyle}
+            value={form.zip}
+            onChange={e => setForm(f => ({ ...f, zip: e.target.value }))}
+            placeholder="94103"
+            maxLength={10}
             onFocus={e => (e.target.style.borderBottomColor = 'var(--text)')}
             onBlur={e => (e.target.style.borderBottomColor = 'var(--border-strong)')}
           />

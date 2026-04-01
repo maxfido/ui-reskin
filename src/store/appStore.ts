@@ -8,6 +8,9 @@ export interface BusinessProfile {
   industry: string
   website: string
   phone: string
+  city: string
+  state: string
+  zip: string
   bankLinked: boolean
 }
 
@@ -26,6 +29,9 @@ const defaultProfile: BusinessProfile = {
   industry: '',
   website: '',
   phone: '',
+  city: '',
+  state: '',
+  zip: '',
   bankLinked: false,
 }
 
