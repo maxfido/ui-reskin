@@ -102,9 +102,14 @@ function splitLabel(label: string): [string, string | null] {
   return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')]
 }
 
-export default function HubGraph() {
+interface HubGraphProps {
+  onCenterClick?: () => void
+}
+
+export default function HubGraph({ onCenterClick }: HubGraphProps) {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState<string | null>(null)
+  const [centerHovered, setCenterHovered] = useState(false)
   const nodes = buildNodes()
 
   return (
@@ -148,24 +153,42 @@ export default function HubGraph() {
         })}
 
         {/* Center hub node */}
-        <circle cx={CX} cy={CY} r={36} fill="#111110" />
-        <circle cx={CX} cy={CY} r={36} fill="none" stroke="#E85D1A" strokeWidth={1.5} opacity={0.6} />
-        <image
-          href={iconColor}
-          x={CX - 18} y={CY - 18}
-          width={36} height={36}
-          style={{ pointerEvents: 'none' }}
-        />
-        <text
-          x={CX} y={CY + 52}
-          textAnchor="middle"
-          fontFamily="IBM Plex Mono, monospace"
-          fontSize={9}
-          letterSpacing="2"
-          fill="#888886"
+        <g
+          style={{ cursor: 'pointer' }}
+          onClick={onCenterClick}
+          onMouseEnter={() => setCenterHovered(true)}
+          onMouseLeave={() => setCenterHovered(false)}
         >
-          FIDO
-        </text>
+          {centerHovered && (
+            <circle cx={CX} cy={CY} r={50} fill="none" stroke="#E85D1A" strokeWidth={1} opacity={0.2} filter="url(#node-glow)" />
+          )}
+          <circle cx={CX} cy={CY} r={36} fill="#111110" />
+          <circle
+            cx={CX} cy={CY} r={36}
+            fill="none"
+            stroke="#E85D1A"
+            strokeWidth={centerHovered ? 2 : 1.5}
+            opacity={centerHovered ? 1 : 0.6}
+            style={{ transition: 'stroke-width 0.2s, opacity 0.2s' }}
+          />
+          <image
+            href={iconColor}
+            x={CX - 18} y={CY - 18}
+            width={36} height={36}
+            style={{ pointerEvents: 'none' }}
+          />
+          <text
+            x={CX} y={CY + 52}
+            textAnchor="middle"
+            fontFamily="IBM Plex Mono, monospace"
+            fontSize={9}
+            letterSpacing="2"
+            fill={centerHovered ? '#E85D1A' : '#888886'}
+            style={{ transition: 'fill 0.2s' }}
+          >
+            FIDO
+          </text>
+        </g>
 
         {/* Skill nodes */}
         {nodes.map((node) => {

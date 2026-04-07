@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
 import { useChatStore } from '../store/chatStore'
@@ -5,6 +6,7 @@ import { SKILLS } from '../data/skills'
 import HubGraph from '../components/dashboard/HubGraph'
 import SkillCard from '../components/dashboard/SkillCard'
 import BusinessAnalytics from '../components/dashboard/BusinessAnalytics'
+import BusinessPlanModal from '../components/dashboard/BusinessPlanModal'
 import { MessageSquare, ArrowRight } from 'lucide-react'
 
 function timeAgo(ts: number) {
@@ -21,12 +23,14 @@ export default function DashboardPage() {
   const { profile } = useAppStore()
   const { conversations } = useChatStore()
   const navigate = useNavigate()
+  const [showBusinessPlan, setShowBusinessPlan] = useState(false)
 
   const allSkills = SKILLS
 
   const firstName = profile.ownerName?.split(' ')[0] || 'there'
 
   return (
+    <>
     <div style={{ padding: '40px 48px', maxWidth: 1000, margin: '0 auto' }}>
 
       {/* Header */}
@@ -79,7 +83,7 @@ export default function DashboardPage() {
         <p style={{ fontSize: 13, color: 'var(--text-muted)', padding: '0 32px', marginBottom: 12 }}>
           Click a skill to open a conversation with Fido.
         </p>
-        <HubGraph />
+        <HubGraph onCenterClick={() => setShowBusinessPlan(true)} />
       </div>
 
       {/* Skills grid */}
@@ -167,5 +171,10 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+
+    {showBusinessPlan && (
+      <BusinessPlanModal onClose={() => setShowBusinessPlan(false)} />
+    )}
+    </>
   )
 }
