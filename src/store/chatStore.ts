@@ -2,7 +2,19 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type MessageRole = 'fido' | 'user'
-export type CardType = 'health-summary' | 'lender-match'
+export type CardType =
+  | 'health-summary'
+  | 'lender-match'
+  | 'plaid-verified'
+  | 'funding-profile'
+  | 'lender-offers'
+  | 'loan-comparison'
+  | 'approval-assessment'
+  | 'docs-on-file'
+  | 'submitted'
+  | 'coffee-plaid'
+  | 'coffee-profile'
+  | 'coffee-submitted'
 
 export interface Message {
   id: string
