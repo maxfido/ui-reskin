@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/appStore'
+import { useBillingStore } from '../store/billingStore'
 import { Check, ArrowRight } from 'lucide-react'
 
 const INDUSTRIES = ['Retail', 'Food & Beverage', 'Services', 'Construction', 'Healthcare', 'Technology', 'Other']
 
-type Plan = 'free' | 'premium'
 
 function PlanFeature({ text, note }: { text: string; note?: string }) {
   return (
@@ -51,7 +51,7 @@ export default function SettingsPage() {
   const navigate = useNavigate()
   const { profile, setProfile } = useAppStore()
   const [saved, setSaved] = useState(false)
-  const [currentPlan] = useState<Plan>('free')
+  const { plan: currentPlan } = useBillingStore()
 
   const [form, setForm] = useState({
     businessName: profile.businessName,
@@ -329,11 +329,10 @@ export default function SettingsPage() {
             </p>
 
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginBottom: 24, flex: 1 }}>
-              <PlanFeature text="Explore Fido's funding flow" note="Up to 10 messages, then a simple form" />
-              <PlanFeature text="25 conversations with Fido per month" />
-              <PlanFeature text="Connect Plaid & QuickBooks" note="Weekly sync" />
-              <PlanFeature text="Business health dashboard" note="Updated every 48 hrs" />
-              <PlanFeature text="Basic alerts & notifications" />
+              <PlanFeature text="1 connected business account via Plaid" />
+              <PlanFeature text="50 messages included in trial" />
+              <PlanFeature text="Unlimited loan applications" note="AI + human support" />
+              <PlanFeature text="30-day trial, then choose to upgrade" />
             </div>
 
             <button
@@ -360,7 +359,7 @@ export default function SettingsPage() {
               padding: '32px 28px',
               display: 'flex',
               flexDirection: 'column',
-              border: '1.5px solid var(--blue)',
+              border: `1.5px solid ${currentPlan === 'premium' ? 'var(--orange)' : 'var(--border)'}`,
               height: '100%',
             }}>
               <div style={{
@@ -368,7 +367,7 @@ export default function SettingsPage() {
                 fontSize: 9,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: 'var(--blue)',
+                color: 'var(--orange)',
                 marginBottom: 12,
               }}>
                 Premium
@@ -384,24 +383,28 @@ export default function SettingsPage() {
               </p>
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20, marginBottom: 24, flex: 1 }}>
-                <PlanFeature text="Everything in Free" />
-                <PlanFeature text="150 conversations per month" note="+$0.10 per message over limit" />
-                <PlanFeature text="Daily Plaid & QuickBooks sync" />
-                <PlanFeature text="Real-time business dashboard" />
-                <PlanFeature text="Unlimited alerts" note="SMS, email & in-app" />
-                <PlanFeature text="Priority funding processing" />
+                <PlanFeature text="300 messages/month" note="+$5 per additional 100" />
+                <PlanFeature text="5 connected business accounts via Plaid" note="+$2/additional/month" />
+                <PlanFeature text="Unlimited loan applications" note="AI + human support" />
+                <PlanFeature text="Cancel monthly anytime" />
               </div>
 
               <button
                 className="btn btn-primary"
+                disabled={currentPlan === 'premium'}
+                onClick={() => currentPlan !== 'premium' && navigate('/billing')}
                 style={{
                   width: '100%',
                   justifyContent: 'center',
                   fontSize: 14,
                   padding: '13px',
+                  background: currentPlan === 'premium' ? 'var(--bg-elevated)' : 'var(--orange)',
+                  color: currentPlan === 'premium' ? 'var(--text-muted)' : '#fff',
+                  border: currentPlan === 'premium' ? '1px solid var(--border)' : 'none',
+                  cursor: currentPlan === 'premium' ? 'default' : 'pointer',
                 }}
               >
-                Purchase Premium →
+                {currentPlan === 'premium' ? 'Current plan' : 'Upgrade to Premium →'}
               </button>
             </div>
           </div>

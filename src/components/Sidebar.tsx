@@ -113,7 +113,7 @@ export default function Sidebar({ active, onChange, firstName = 'Max' }: Props) 
 
       {/* ── Nav ── */}
       <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {navItem('funding',  <Home      size={14} />, 'Apply for Funding')}
+        {navItem('funding',  <Home      size={14} />, 'Apply for Financing')}
         {navItem('accounts', <Building2 size={14} />, 'Connected Accounts')}
         {navItem('plan',     <CreditCard size={14} />, 'Free Plan')}
 

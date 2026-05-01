@@ -5,8 +5,11 @@ import DashboardPage from './pages/DashboardPage'
 import SkillChatPage from './pages/SkillChatPage'
 import SettingsPage from './pages/SettingsPage'
 import FundingPage from './pages/FundingPage'
+import SoulPage from './pages/SoulPage'
 import BillingPage from './pages/BillingPage'
 import ChatPage from './pages/ChatPage'
+import FinancialsPage from './pages/FinancialsPage'
+import CoffeeCoPage from './pages/CoffeeCoPage'
 import AppShell from './components/layout/AppShell'
 
 export default function App() {
@@ -22,8 +25,11 @@ export default function App() {
           <Route path="/conversations" element={<Navigate to="/chat" replace />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/funding" element={<FundingPage />} />
+          <Route path="/coffee-co" element={<CoffeeCoPage />} />
+          <Route path="/soul" element={<SoulPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/billing" element={<BillingPage />} />
+          <Route path="/financials" element={<FinancialsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

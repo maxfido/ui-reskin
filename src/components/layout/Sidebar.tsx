@@ -1,17 +1,23 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
-import { LayoutDashboard, MessageSquare, Settings, LogOut, ArrowLeft, Plus, Trash2, Landmark } from 'lucide-react'
+import { Home, MessageSquare, Settings, LogOut, ArrowLeft, Plus, Trash2, Landmark, FileText, BarChart2, Flame, Check, CreditCard } from 'lucide-react'
+import { useSoulStore, soulCompleteness } from '../../store/soulStore'
 import { useAppStore } from '../../store/appStore'
 import { useChatStore } from '../../store/chatStore'
+import { useBillingStore, FREE_MSG_LIMIT } from '../../store/billingStore'
 import { getSkill } from '../../data/skills'
 import logo from '../../assets/logo.png'
 
 const mainNav = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', exact: true },
-  { to: '/funding', icon: Landmark, label: 'Funding', exact: false },
+  { to: '/dashboard', icon: Home, label: 'Home', exact: true },
+  { to: '/funding', icon: FileText, label: 'My Loans', exact: false },
+  { to: '/accounts', icon: Landmark, label: 'Connected Accounts', exact: false },
+  { to: '/financials', icon: BarChart2, label: 'Financials', exact: false },
   { to: '/chat', icon: MessageSquare, label: 'Chat with Fido AI', exact: false },
   { to: '/settings', icon: Settings, label: 'Settings', exact: false },
 ]
+
+const SOUL_NAV = { to: '/soul', label: 'Business Soul' }
 
 function timeAgo(ts: number) {
   const diff = Date.now() - ts
@@ -28,8 +34,13 @@ export default function Sidebar() {
   const [hoveredNav, setHoveredNav] = useState<string | null>(null)
   const [footerHovered, setFooterHovered] = useState(false)
   const [backHovered, setBackHovered] = useState(false)
+  const [soulHovered, setSoulHovered] = useState(false)
+  const [planHovered, setPlanHovered] = useState(false)
 
   const { profile, reset } = useAppStore()
+  const { soul } = useSoulStore()
+  const { plan, messagesUsed, trialDaysLeft } = useBillingStore()
+  const soulPct = soulCompleteness(soul)
   const { conversations, activeConversationId, setActiveConversation, createConversation, deleteConversation } = useChatStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -56,6 +67,7 @@ export default function Sidebar() {
 
   const isActive = (to: string, exact: boolean) => {
     if (exact) return location.pathname === to
+    if (to === '/funding' && location.pathname === '/coffee-co') return true
     // For skill routes, match exactly to avoid Dashboard catching /dashboard/skill/*
     if (to.startsWith('/dashboard/skill/')) return location.pathname === to
     return location.pathname.startsWith(to)
@@ -120,7 +132,7 @@ export default function Sidebar() {
                   transform: backHovered ? 'translateX(-2px)' : 'translateX(0)',
                 }}
               />
-              Dashboard
+              Home
             </button>
             <div style={{ fontFamily: 'Platypi, serif', fontSize: 15, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em' }}>
               {skill?.name}
@@ -298,6 +310,100 @@ export default function Sidebar() {
             </div>
           )}
         </nav>
+      )}
+
+      {/* Soul entry */}
+      {!isSkillRoute && (
+        <div style={{ padding: '0 8px 8px', borderTop: '1px solid var(--border)', paddingTop: 8 }}>
+          <button
+            onClick={() => navigate(SOUL_NAV.to)}
+            onMouseEnter={() => setSoulHovered(true)}
+            onMouseLeave={() => setSoulHovered(false)}
+            style={{
+              width: '100%',
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '9px 12px', borderRadius: 6,
+              border: isActive(SOUL_NAV.to, false) ? '1px solid rgba(232,93,26,0.3)' : '1px solid transparent',
+              cursor: 'pointer', textAlign: 'left',
+              background: isActive(SOUL_NAV.to, false)
+                ? 'rgba(232,93,26,0.08)'
+                : soulHovered
+                ? 'var(--bg-elevated)'
+                : 'transparent',
+              transition: 'background 0.15s, border-color 0.15s',
+            }}
+          >
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              background: soulPct === 100
+                ? 'var(--green)'
+                : soulPct > 0
+                ? '#E85D1A'
+                : 'var(--border-strong)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.2s',
+            }}>
+              <Flame size={10} color="#fff" />
+            </div>
+            <span style={{
+              fontSize: 13, fontWeight: isActive(SOUL_NAV.to, false) ? 600 : 500,
+              color: isActive(SOUL_NAV.to, false) ? '#E85D1A' : soulHovered ? 'var(--text)' : 'var(--sb-muted)',
+              flex: 1,
+              transition: 'color 0.12s',
+            }}>
+              {SOUL_NAV.label}
+            </span>
+            {soulPct > 0 && soulPct < 100 && (
+              <span style={{
+                fontSize: 10, color: '#E85D1A',
+                fontFamily: 'IBM Plex Mono, monospace',
+                letterSpacing: '0.04em',
+              }}>
+                {soulPct}%
+              </span>
+            )}
+            {soulPct === 100 && (
+              <Check size={11} color="var(--green)" strokeWidth={2.5} />
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Free plan meter */}
+      {!isSkillRoute && plan === 'free' && (
+        <div style={{ padding: '0 8px 8px' }}>
+          <button
+            onClick={() => navigate('/billing')}
+            onMouseEnter={() => setPlanHovered(true)}
+            onMouseLeave={() => setPlanHovered(false)}
+            style={{
+              width: '100%', textAlign: 'left',
+              padding: '9px 12px', borderRadius: 6,
+              border: `1.5px solid ${planHovered ? 'var(--orange)' : 'rgba(232,93,26,0.35)'}`,
+              background: planHovered ? 'var(--orange-soft)' : 'rgba(232,93,26,0.04)',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+              <CreditCard size={11} color="var(--orange)" />
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--orange)' }}>Free Plan</span>
+            </div>
+            {/* Progress bar */}
+            <div style={{ height: 3, borderRadius: 99, background: 'var(--border)', overflow: 'hidden', marginBottom: 5 }}>
+              <div style={{
+                height: '100%',
+                width: `${Math.min((messagesUsed / FREE_MSG_LIMIT) * 100, 100)}%`,
+                background: 'var(--orange)',
+                borderRadius: 99,
+                transition: 'width 0.4s ease',
+              }} />
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+              {messagesUsed}/{FREE_MSG_LIMIT} messages · {trialDaysLeft}d left
+            </div>
+          </button>
+        </div>
       )}
 
       {/* User footer */}

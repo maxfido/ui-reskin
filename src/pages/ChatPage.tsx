@@ -1,53 +1,67 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Send } from 'lucide-react'
 import { useChatStore } from '../store/chatStore'
-import { GENERAL_SKILL } from '../data/skills'
-import { getNextResponse } from '../data/mockResponses'
+import { DEMO_SCENARIO } from '../data/mockResponses'
 import ChatMessage from '../components/chat/ChatMessage'
 import TypingIndicator from '../components/chat/TypingIndicator'
 import iconColor from '../assets/icon-color.png'
 
-const STARTER_PROMPTS = [
-  'How can I increase cash flow?',
-  'What financing options are best for me?',
-  'Help me plan to secure funding',
-  'What loan types are best for my business?',
-  'How should I think about marketing spend?',
-  'Give me a business health check',
-]
-
 const SKILL_ID = 'general'
+const DEMO_OPENER = "Hi Dr. Sarah — I'm tracking everything across Lakeside Family Dental. Ready to find your best funding options?"
 
 export default function ChatPage() {
-  const { conversations, activeConversationId, createConversation, setActiveConversation, addMessage, isTyping, setTyping } = useChatStore()
+  const {
+    conversations,
+    activeConversationId,
+    createConversation,
+    addMessage,
+    deleteConversation,
+    isTyping,
+    setTyping,
+  } = useChatStore()
+
   const [input, setInput] = useState('')
-  const [initialized, setInitialized] = useState(false)
+  const [scenarioStep, setScenarioStep] = useState<number | null>(0)
+  const initialized = useRef(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Find or create the general conversation
   const generalConvs = conversations.filter(c => c.skillId === SKILL_ID)
   const activeConv = conversations.find(c => c.id === activeConversationId && c.skillId === SKILL_ID)
     ?? generalConvs[0]
     ?? null
 
-  const messages = activeConv?.messages ?? []
-  const userMsgCount = messages.filter(m => m.role === 'user').length
-  const isEmpty = userMsgCount === 0
+  const messages = useMemo(() => activeConv?.messages ?? [], [activeConv?.messages])
 
   useEffect(() => {
-    if (initialized) return
-    setInitialized(true)
-    if (generalConvs.length > 0) {
-      setActiveConversation(generalConvs[0].id)
-    } else {
-      createConversation(SKILL_ID, GENERAL_SKILL.mockOpener)
-    }
-  }, [])
+    if (initialized.current) return
+    initialized.current = true
+    conversations
+      .filter(c => c.skillId === SKILL_ID)
+      .forEach(c => deleteConversation(c.id))
+    createConversation(SKILL_ID, DEMO_OPENER)
+  }, [conversations, createConversation, deleteConversation])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
+
+  const sendDemoStep = async (stepIndex: number) => {
+    const step = DEMO_SCENARIO[stepIndex]
+    if (!step || isTyping || !activeConv) return
+
+    addMessage(activeConv.id, { role: 'user', content: step.userMsg })
+    setTyping(true)
+
+    await new Promise(r => setTimeout(r, step.delay))
+
+    addMessage(activeConv.id, { role: 'fido', content: step.response, card: step.card })
+    setTyping(false)
+
+    const next = stepIndex + 1
+    setScenarioStep(next < DEMO_SCENARIO.length ? next : null)
+    inputRef.current?.focus()
+  }
 
   const send = async (text: string) => {
     const trimmed = text.trim()
@@ -56,11 +70,11 @@ export default function ChatPage() {
 
     addMessage(activeConv.id, { role: 'user', content: trimmed })
     setTyping(true)
-
-    const flow = getNextResponse(SKILL_ID, userMsgCount + 1)
-    await new Promise(r => setTimeout(r, flow.delay))
-
-    addMessage(activeConv.id, { role: 'fido', content: flow.response, card: flow.card })
+    await new Promise(r => setTimeout(r, 1200))
+    addMessage(activeConv.id, {
+      role: 'fido',
+      content: "Got it. Let me look into that for you.",
+    })
     setTyping(false)
     inputRef.current?.focus()
   }
@@ -68,9 +82,13 @@ export default function ChatPage() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      send(input)
+      void send(input)
     }
   }
+
+  const pendingChip = scenarioStep !== null && scenarioStep < DEMO_SCENARIO.length
+    ? DEMO_SCENARIO[scenarioStep]
+    : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -95,7 +113,7 @@ export default function ChatPage() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Fido</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>AI Business Partner</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>AI Business Partner · Lakeside Family Dental</div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -116,35 +134,23 @@ export default function ChatPage() {
           <ChatMessage key={msg.id} msg={msg} />
         ))}
         {isTyping && <TypingIndicator />}
-
-        {/* Starter prompts — shown while no user message yet */}
-        {isEmpty && !isTyping && (
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            gap: 20, marginTop: 16,
-            animation: 'fade-up 0.4s 0.2s ease both',
-          }}>
-            <p style={{
-              fontFamily: 'IBM Plex Mono, monospace',
-              fontSize: 10, letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: 'var(--text-muted)',
-            }}>
-              Try asking
-            </p>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center',
-              maxWidth: 560,
-            }}>
-              {STARTER_PROMPTS.map(prompt => (
-                <PromptPill key={prompt} label={prompt} onClick={() => send(prompt)} />
-              ))}
-            </div>
-          </div>
-        )}
-
         <div ref={bottomRef} />
       </div>
+
+      {/* Scenario chip */}
+      {pendingChip && !isTyping && (
+        <div style={{
+          padding: '10px 40px',
+          background: 'var(--bg)',
+          borderTop: '1px solid var(--border)',
+          animation: 'fade-up 0.25s ease both',
+        }}>
+          <ScenarioChip
+            text={pendingChip.chipText}
+            onClick={() => sendDemoStep(scenarioStep!)}
+          />
+        </div>
+      )}
 
       {/* Input */}
       <div style={{
@@ -178,11 +184,12 @@ export default function ChatPage() {
           <Send size={14} />
         </button>
       </div>
+
     </div>
   )
 }
 
-function PromptPill({ label, onClick }: { label: string; onClick: () => void }) {
+function ScenarioChip({ text, onClick }: { text: string; onClick: () => void }) {
   const [hov, setHov] = useState(false)
   return (
     <button
@@ -190,19 +197,21 @@ function PromptPill({ label, onClick }: { label: string; onClick: () => void }) 
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        padding: '8px 16px',
-        borderRadius: 20,
-        border: `1.5px solid ${hov ? 'var(--border-strong)' : 'var(--border)'}`,
-        background: hov ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+        width: '100%',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px',
+        borderRadius: 8,
+        border: `1px solid ${hov ? 'var(--orange)' : 'var(--border)'}`,
+        background: hov ? 'rgba(232,93,26,0.06)' : 'var(--bg-surface)',
         color: hov ? 'var(--text)' : 'var(--text-2)',
         fontSize: 13, fontWeight: 500,
         cursor: 'pointer',
-        transition: 'background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s',
-        transform: hov ? 'translateY(-1px)' : 'translateY(0)',
-        whiteSpace: 'nowrap',
+        transition: 'all 0.15s',
+        textAlign: 'left',
       }}
     >
-      {label}
+      <span>{text}</span>
+      <span style={{ color: 'var(--orange)', fontSize: 14, fontWeight: 600, flexShrink: 0, marginLeft: 12 }}>→</span>
     </button>
   )
 }

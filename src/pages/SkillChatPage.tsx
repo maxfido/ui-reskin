@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useChatStore } from '../store/chatStore'
 import { getSkill } from '../data/skills'
@@ -9,17 +9,17 @@ export default function SkillChatPage() {
   const [searchParams] = useSearchParams()
   const skill = getSkill(skillId)
   const { conversations, activeConversationId, createConversation, setActiveConversation } = useChatStore()
-  const [initialized, setInitialized] = useState(false)
+  const initialized = useRef(false)
 
   const skillConversations = conversations.filter(c => c.skillId === skillId)
 
   useEffect(() => {
-    if (!skill || initialized) return
+    if (!skill || initialized.current) return
 
     const convParam = searchParams.get('conv')
     if (convParam && conversations.find(c => c.id === convParam)) {
       setActiveConversation(convParam)
-      setInitialized(true)
+      initialized.current = true
       return
     }
 
@@ -29,12 +29,14 @@ export default function SkillChatPage() {
     } else {
       createConversation(skillId, skill.mockOpener)
     }
-    setInitialized(true)
-  }, [skillId, skill, initialized])
+    initialized.current = true
+  }, [skillId, skill, searchParams, conversations, skillConversations, createConversation, setActiveConversation])
 
   if (!skill) {
     return <div style={{ padding: 48, color: 'var(--text-muted)' }}>Skill not found.</div>
   }
+
+  const initialPrompt = searchParams.get('prompt') ?? undefined
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -76,7 +78,7 @@ export default function SkillChatPage() {
       {/* Chat */}
       <div style={{ flex: 1, overflow: 'hidden' }}>
         {activeConversationId ? (
-          <ChatPane skillId={skillId} conversationId={activeConversationId} />
+          <ChatPane skillId={skillId} conversationId={activeConversationId} initialPrompt={initialPrompt} />
         ) : (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
             Starting conversation...

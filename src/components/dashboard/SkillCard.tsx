@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BarChart3, Banknote, Building2, TrendingUp, ArrowRight } from 'lucide-react'
+import { BarChart3, Banknote, Building2, TrendingUp, Presentation, Globe, ArrowRight } from 'lucide-react'
 import type { Skill } from '../../data/skills'
 
 const ICONS: Record<string, React.ElementType> = {
-  BarChart3, Banknote, Building2, TrendingUp,
+  BarChart3, Banknote, Building2, TrendingUp, Presentation, Globe,
 }
 
 export default function SkillCard({ skill }: { skill: Skill }) {
@@ -15,85 +15,79 @@ export default function SkillCard({ skill }: { skill: Skill }) {
   return (
     <div
       onClick={() => skill.available && navigate(`/dashboard/skill/${skill.id}`)}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => skill.available && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: 'var(--bg-surface)',
-        border: `1px solid ${hovered && skill.available ? 'var(--border-strong)' : 'var(--border)'}`,
-        borderRadius: 6,
-        padding: '28px 28px 24px',
-        cursor: skill.available ? 'pointer' : 'default',
-        opacity: skill.available ? 1 : 0.5,
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        boxShadow: hovered && skill.available ? '0 4px 20px rgba(0,0,0,0.06)' : 'none',
         display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
+        alignItems: 'flex-start',
+        gap: 14,
+        padding: '18px 20px',
+        borderRadius: 20,
+        border: hovered
+          ? `1.5px solid ${skill.color}`
+          : '1.5px solid var(--border)',
+        background: hovered ? `${skill.color}0d` : 'var(--bg-surface)',
+        cursor: skill.available ? 'pointer' : 'default',
+        transition: 'border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1)',
+        transform: hovered ? 'scale(1.015)' : 'scale(1)',
+        boxShadow: hovered ? `0 4px 18px ${skill.color}22` : '0 1px 4px rgba(0,0,0,0.04)',
+        opacity: skill.available ? 1 : 0.55,
       }}
     >
-      {/* Icon + availability badge */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{
-          width: 40, height: 40,
-          background: skill.available ? `${skill.color}12` : 'var(--bg-elevated)',
-          borderRadius: 8,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={18} color={skill.available ? skill.color : 'var(--text-muted)'} />
-        </div>
-        {!skill.available && (
-          <span style={{
-            fontFamily: 'IBM Plex Mono, monospace',
-            fontSize: 9,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-            background: 'var(--bg-elevated)',
-            padding: '3px 8px',
-            borderRadius: 3,
-          }}>
-            Soon
-          </span>
-        )}
+      {/* Icon */}
+      <div style={{
+        width: 40, height: 40,
+        borderRadius: '50%',
+        background: hovered ? `${skill.color}20` : skill.available ? `${skill.color}12` : 'var(--bg-elevated)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+        marginTop: 1,
+        transition: 'background 0.18s',
+      }}>
+        <Icon
+          size={17}
+          color={skill.available ? skill.color : 'var(--text-muted)'}
+          style={{ transition: 'transform 0.18s', transform: hovered ? 'scale(1.15)' : 'scale(1)' }}
+        />
       </div>
 
       {/* Text */}
-      <div>
-        <div style={{
-          fontFamily: 'Platypi, serif',
-          fontSize: 17,
-          fontWeight: 600,
-          color: 'var(--text)',
-          marginBottom: 6,
-          letterSpacing: '-0.02em',
-        }}>
-          {skill.name}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
+          <div style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: hovered ? skill.color : 'var(--text)',
+            transition: 'color 0.15s',
+          }}>
+            {skill.name}
+          </div>
+          {skill.available ? (
+            <ArrowRight
+              size={13}
+              color={hovered ? skill.color : 'var(--text-muted)'}
+              style={{ flexShrink: 0, transition: 'transform 0.18s, color 0.15s', transform: hovered ? 'translateX(3px)' : 'none' }}
+            />
+          ) : (
+            <span style={{
+              fontFamily: 'IBM Plex Mono, monospace',
+              fontSize: 9, letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+              flexShrink: 0,
+            }}>
+              Soon
+            </span>
+          )}
         </div>
         <div style={{
-          fontSize: 13,
+          fontSize: 12,
           color: 'var(--text-muted)',
-          lineHeight: 1.55,
+          lineHeight: 1.5,
         }}>
           {skill.description}
         </div>
       </div>
-
-      {/* CTA */}
-      {skill.available && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          marginTop: 4,
-          fontSize: 13,
-          fontWeight: 600,
-          color: hovered ? skill.color : 'var(--text-2)',
-          transition: 'color 0.15s',
-        }}>
-          Open
-          <ArrowRight size={13} style={{ transition: 'transform 0.15s', transform: hovered ? 'translateX(3px)' : 'none' }} />
-        </div>
-      )}
     </div>
   )
 }

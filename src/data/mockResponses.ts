@@ -1,3 +1,65 @@
+import type { CardType } from '../store/chatStore'
+
+export interface DemoStep {
+  chipText: string
+  userMsg:  string
+  delay:    number
+  response: string
+  card?:    CardType
+}
+
+export const DEMO_SCENARIO: DemoStep[] = [
+  {
+    chipText: 'I need $150K for a second operatory and new imaging equipment',
+    userMsg:  'I need $150,000 to add a second operatory and upgrade our digital X-ray and CBCT imaging.',
+    delay:    2000,
+    response: "Got it. I pulled Lakeside Family Dental's financials directly from your connected bank account. Here's what I found:",
+    card:     'plaid-verified',
+  },
+  {
+    chipText: 'Yes, that looks right →',
+    userMsg:  'Yes, that looks right.',
+    delay:    1800,
+    response: "Lakeside Family Dental clears every key threshold. Here's your funding profile:",
+    card:     'funding-profile',
+  },
+  {
+    chipText: 'Find my loan options →',
+    userMsg:  'Find my loan options.',
+    delay:    2200,
+    response: "Found 3 matched offers for $150,000. Want me to walk you through a full analysis?",
+    card:     'lender-offers',
+  },
+  {
+    chipText: 'What do you recommend?',
+    userMsg:  'What do you recommend?',
+    delay:    2000,
+    response: "My recommendation: Live Oak Bank SBA 7(a). Ready to submit your application?",
+    card:     'loan-comparison',
+  },
+  {
+    chipText: 'What are my chances of approval?',
+    userMsg:  'What are my chances of approval?',
+    delay:    1800,
+    response: "Your approval odds are strong. Here's how Lakeside Family Dental stacks up against Live Oak's SBA 7(a) healthcare criteria:",
+    card:     'approval-assessment',
+  },
+  {
+    chipText: 'What paperwork do I need?',
+    userMsg:  'What paperwork do I need?',
+    delay:    1600,
+    response: "None. I already have everything Live Oak needs.",
+    card:     'docs-on-file',
+  },
+  {
+    chipText: 'Submit to Live Oak Bank →',
+    userMsg:  'Yes — submit to Live Oak Bank.',
+    delay:    2400,
+    response: "Your application is in. Live Oak Bank has received everything they need. I'll notify you when they respond — typically 2 to 5 business days. You didn't fill out a single form.",
+    card:     'submitted',
+  },
+]
+
 export interface MockFlow {
   trigger: string
   response: string

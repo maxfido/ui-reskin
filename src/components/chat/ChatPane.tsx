@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { Send } from 'lucide-react'
 import { useChatStore } from '../../store/chatStore'
 import { getNextResponse } from '../../data/mockResponses'
@@ -8,26 +8,28 @@ import TypingIndicator from './TypingIndicator'
 interface Props {
   skillId: string
   conversationId: string
+  initialPrompt?: string
 }
 
-export default function ChatPane({ skillId, conversationId }: Props) {
+export default function ChatPane({ skillId, conversationId, initialPrompt }: Props) {
   const { conversations, addMessage, isTyping, setTyping } = useChatStore()
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const autoSent = useRef(false)
 
   const conversation = conversations.find(c => c.id === conversationId)
-  const messages = conversation?.messages ?? []
+  const messages = useMemo(() => conversation?.messages ?? [], [conversation?.messages])
   const userMsgCount = messages.filter(m => m.role === 'user').length
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  const sendMessage = async () => {
-    const text = input.trim()
+  const sendMessage = useCallback(async (override?: string) => {
+    const text = (override ?? input).trim()
     if (!text || isTyping) return
-    setInput('')
+    if (!override) setInput('')
 
     addMessage(conversationId, { role: 'user', content: text })
     setTyping(true)
@@ -42,12 +44,21 @@ export default function ChatPane({ skillId, conversationId }: Props) {
     })
     setTyping(false)
     inputRef.current?.focus()
-  }
+  }, [input, isTyping, conversationId, skillId, userMsgCount, addMessage, setTyping])
+
+  useEffect(() => {
+    if (!initialPrompt || autoSent.current) return
+    autoSent.current = true
+    const t = setTimeout(() => {
+      void sendMessage(initialPrompt)
+    }, 0)
+    return () => clearTimeout(t)
+  }, [conversationId, initialPrompt, sendMessage])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      sendMessage()
+      void sendMessage()
     }
   }
 
@@ -101,7 +112,7 @@ export default function ChatPane({ skillId, conversationId }: Props) {
           onBlur={e => (e.target.style.borderColor = 'var(--border)')}
         />
         <button
-          onClick={sendMessage}
+          onClick={() => sendMessage()}
           disabled={!input.trim() || isTyping}
           className="btn btn-primary"
           style={{ padding: '11px 16px' }}

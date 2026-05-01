@@ -185,7 +185,7 @@ export default function WelcomePage() {
         letterSpacing: '0.06em',
         animation: 'fade-up 0.5s 0.2s ease both',
       }}>
-        SBA Fintech Inc. · Fido Financial
+        SBA Fintech Inc.
       </div>
     </div>
   )
